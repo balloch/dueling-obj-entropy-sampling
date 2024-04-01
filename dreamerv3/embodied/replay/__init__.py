@@ -6,5 +6,6 @@ from .curious_replay import CuriousReplay
 from .prioritized_experience_replay import PrioritizedExperienceReplay
 from .count_based import CountBasedReplay
 from .adversarial import AdversarialReplay
+from .disagreement_replay import DisagreementReplay
 from . import selectors
 from . import limiters

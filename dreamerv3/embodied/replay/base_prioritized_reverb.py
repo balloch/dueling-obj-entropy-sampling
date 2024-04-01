@@ -172,6 +172,12 @@ class BasePrioritizedReverb:
 
       yield seq
 
+  def train(self, data):
+    return None, {}
+
+  def set_agent(self, agent):
+    self.agent = agent
+
   def _split_key(self, key):
     """Split the uint64 key into two 32 bit ints"""
     keyA_tf = key // tf.constant(2 ** 32, dtype=tf.uint64)
