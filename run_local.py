@@ -5,8 +5,8 @@ def main():
     n = int(time.time())
 
     args = \
-        ['--logdir',                        f'/home/cd/src/aal/logdir/crafter-dv3-20230502-{n}',
-         '--env.crafter.outdir',            f'/home/cd/src/aal/logdir/crafter-dv3-20230502-{n}',
+        ['--logdir',                        f'/home/rbhagat8/logdir/crafter-dv3-20230502-{n}',
+         '--env.crafter.outdir',            f'/home/rbhagat8/logdir/crafter-dv3-20230502-{n}',
          #'--configs',                       'crafter',
          '--configs',                       'crafter', 'small',
          #'--configs',                       'dmc_vision',

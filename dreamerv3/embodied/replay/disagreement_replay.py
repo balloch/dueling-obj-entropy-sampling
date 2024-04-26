@@ -26,6 +26,7 @@ class DisagreementReplay(BasePrioritizedReverb):
         + np.power((model_loss + hyper['epsilon']), hyper['alpha'])
     
     def prioritize(self, key, env_steps, losses, td_error):
+        # Could potentially have the disag_score be passed into here instead of manually calculated everytime.
         # TODO: need to switch this into using the output of the disag model
         flat_steps = env_steps.flatten() # Are these the states? If so can be pass then to disag
         flat_losses = losses.flatten()
