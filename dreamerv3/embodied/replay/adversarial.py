@@ -9,4 +9,4 @@ class AdversarialReplay(CuriousReplay):
 
     @staticmethod
     def _calculate_priority_score(model_loss, visit_count, hyper):
-        return np.power((model_loss + hyper['epsilon']), hyper['alpha'])
+        return np.power((model_loss + hyper["epsilon"]), hyper["alpha"])

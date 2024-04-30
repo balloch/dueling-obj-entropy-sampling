@@ -9,4 +9,4 @@ class CountBasedReplay(CuriousReplay):
 
     @staticmethod
     def _calculate_priority_score(model_loss, visit_count, hyper):
-        return hyper['c'] * np.power(hyper['beta'], visit_count) + hyper['epsilon']
+        return hyper["c"] * np.power(hyper["beta"], visit_count) + hyper["epsilon"]
