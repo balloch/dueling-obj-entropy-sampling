@@ -3,6 +3,7 @@ from .reverb import Reverb
 from .replays import Uniform
 from .naive_chunks import NaiveChunks
 from .curious_replay import CuriousReplay
+from .disagreement_replay import DisagreementReplay
 from .prioritized_experience_replay import PrioritizedExperienceReplay
 from .count_based import CountBasedReplay
 from .adversarial import AdversarialReplay

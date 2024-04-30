@@ -47,7 +47,6 @@ def main(argv=None):
       env = make_envs(config)
       cleanup.append(env)
       agent = agt.Agent(env.obs_space, env.act_space, step, config)
-      replay.set_agent(agent)
       embodied.run.train(agent, env, replay, logger, args)
 
     elif args.script == 'train_save':
@@ -55,7 +54,6 @@ def main(argv=None):
       env = make_envs(config)
       cleanup.append(env)
       agent = agt.Agent(env.obs_space, env.act_space, step, config)
-      replay.set_agent(agent)
       embodied.run.train_save(agent, env, replay, logger, args)
 
     elif args.script == 'train_eval':
@@ -65,7 +63,6 @@ def main(argv=None):
       eval_env = make_envs(config)  # mode='eval'
       cleanup += [env, eval_env]
       agent = agt.Agent(env.obs_space, env.act_space, step, config)
-      replay.set_agent(agent)
       embodied.run.train_eval(
           agent, env, eval_env, replay, eval_replay, logger, args)
 
@@ -80,7 +77,6 @@ def main(argv=None):
       env = make_envs(config)
       cleanup.append(env)
       agent = agt.Agent(env.obs_space, env.act_space, step, config)
-      replay.set_agent(agent)
       embodied.run.train_holdout(
           agent, env, replay, eval_replay, logger, args)
 
@@ -98,7 +94,6 @@ def main(argv=None):
       agent = agt.Agent(env.obs_space, env.act_space, step, config)
       env.close()
       replay = make_replay(config, logdir / 'replay', rate_limit=True)
-      replay.set_agent(agent)
       embodied.run.parallel(
           agent, replay, logger, bind(make_env, config),
           num_envs=config.envs.amount, args=args)
@@ -139,6 +134,8 @@ def make_replay(
     replay = embodied.replay.Reverb(length, size, directory)
   elif config.replay == 'curious-replay':
     replay = embodied.replay.CuriousReplay(length, size, directory, hyper=config.replay_hyper)
+  elif config.replay == 'does':
+    replay = embodied.replay.DisagreementReplay(length, size, directory, hyper=config.replay_hyper)
   elif config.replay == 'per':
     replay = embodied.replay.PrioritizedExperienceReplay(length, size, directory, hyper=config.replay_hyper)
   elif config.replay == 'count-based':
@@ -147,8 +144,6 @@ def make_replay(
     replay = embodied.replay.AdversarialReplay(length, size, directory, hyper=config.replay_hyper)
   elif config.replay == 'chunks':
     replay = embodied.replay.NaiveChunks(length, size, directory)
-  elif config.replay == 'disagreement-replay':
-    replay = embodied.replay.DisagreementReplay(length, size, directory, hyper=config.replay_hyper)
   else:
     raise NotImplementedError(config.replay)
   return replay
