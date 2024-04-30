@@ -74,8 +74,8 @@ def train(agent, env, replay, logger, args):
     for _ in range(should_train(step)):
       with timer.scope('dataset'):
         batch[0] = next(dataset)
-      _, replay_metrics = replay.train(batch[0])
-      metrics.add(replay_metrics, prefix='replay_train')
+      # _, replay_metrics = replay.train(batch[0])
+      # metrics.add(replay_metrics, prefix='replay_train')
       outs, state[0], mets = agent.train(batch[0], state[0])
       metrics.add(mets, prefix='train')
 

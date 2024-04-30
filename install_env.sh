@@ -1,10 +1,4 @@
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
 #!/bin/bash
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
 conda create -n does python=3.10
 conda activate does
 pip install -r requirements.txt
