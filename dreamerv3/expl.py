@@ -27,7 +27,9 @@ class Disag(nj.Module):
         return preds.std(0).mean(-1)[1:]
 
     def train(self, data):
-        return self.opt(self.nets, self.loss, data)
+        outputs = self.opt(self.nets, self.loss, data)
+        # print("outs from expl: ", outputs)
+        return outputs
 
     def loss(self, data):
         inp = sg(self.inputs(data)[:, :-1])

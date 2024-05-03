@@ -26,6 +26,7 @@ defaults:
     script: train
     steps: 1e10
     expl_until: 0
+    expl_every: 0
     log_every: 300
     save_every: 900
     eval_every: 1e6
@@ -98,7 +99,8 @@ defaults:
   actent: 3e-4
 
   # Exploration
-  expl_rewards: {extr: 1.0, disag: 0.1}
+  # expl_rewards: {extr: 1.0, disag: 0.1}
+  expl_rewards: {disag: 0.1}
   expl_opt: {opt: adam, lr: 1e-4, eps: 1e-5, clip: 100.0, wd: 0.0, warmup: 0}
   disag_head: {layers: 5, units: 1024, act: silu, norm: layer, dist: mse, outscale: 1.0, inputs: [deter, stoch, action], winit: normal, fan: avg}
   disag_target: [stoch]
@@ -253,7 +255,7 @@ multicpu:
 
 debug:
 
-  jax: {jit: True, prealloc: False, debug: True, platform: cpu}
+  jax: {jit: False, prealloc: False, debug: True, platform: cpu}
   envs: {restart: False, amount: 3}
   wrapper: {length: 100, checks: True}
   run:

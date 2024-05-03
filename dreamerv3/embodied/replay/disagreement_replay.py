@@ -11,10 +11,10 @@ class DisagreementReplay(BasePrioritizedReverb):
     def set_agent(self, agent):
         super().set_agent(agent)
         # TODO: need to use the agent's exploration disag if it already exists
-        self.disag = Disag(
-            agent.wm, agent.act_space, agent.config, name="priority_disag"
-        )
-        self.should_train_disag = True
+        # self.disag = Disag(
+        #     agent.wm, agent.act_space, agent.config, name="priority_disag"
+        # )
+        # self.should_train_disag = True
 
     def train(self, data):
         if self.should_train_disag:
@@ -23,11 +23,9 @@ class DisagreementReplay(BasePrioritizedReverb):
             return super().train(data)
 
     @staticmethod
-    def _calculate_priority_score(model_loss, visit_count, hyper):
+    def _calculate_priority_score(disag, hyper):
         # TODO: remove this function after updating prioritize
-        return (hyper["c"] * np.power(hyper["beta"], visit_count)) + np.power(
-            (model_loss + hyper["epsilon"]), hyper["alpha"]
-        )
+        return (hyper["c"] * disag)
 
     def prioritize(self, key, env_steps, losses, td_error):
         # Could potentially have the disag_score be passed into here instead of manually calculated everytime.

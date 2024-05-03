@@ -104,6 +104,7 @@ class Agent(nj.Module):
                 "env_step": data["env_step"],
                 "model_loss": metrics["model_loss_raw"].copy(),
                 "td_error": metrics["td_error"].copy(),
+                # "disag": metrics["td_error"].copy(),
             }
 
         else:

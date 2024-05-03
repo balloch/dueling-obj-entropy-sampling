@@ -10,7 +10,12 @@ def train(agent, env, replay, logger, args):
     logdir = embodied.Path(args.logdir)
     logdir.mkdirs()
     print("Logdir", logdir)
-    should_expl = embodied.when.Until(args.expl_until)
+    if args.expl_every > 0:
+        if args.expl_until > 0:
+            raise ValueError("Only one of expl_until and expl_every can be greater than 0, not both")
+        should_expl = embodied.when.Every(args.expl_every)
+    else:
+        should_expl = embodied.when.Until(args.expl_until)
     should_train = embodied.when.Ratio(args.train_ratio / args.batch_steps)
     should_log = embodied.when.Clock(args.log_every)
     should_save = embodied.when.Clock(args.save_every)
@@ -67,7 +72,7 @@ def train(agent, env, replay, logger, args):
     print("Prefill train dataset.")
     random_agent = embodied.RandomAgent(env.act_space)
     while len(replay) < max(args.batch_steps, args.train_fill):
-        driver(random_agent.policy, steps=100)
+        driver(random_agent.policy, steps=100) #TODO why is this hardcoded
     logger.add(metrics.result())
     logger.write()
 
@@ -122,7 +127,7 @@ def train(agent, env, replay, logger, args):
         *args, mode="explore" if should_expl(step) else "train"
     )
     while step < args.steps:
-        driver(policy, steps=100)
+        driver(policy, steps=100) # TODO why is this hardcoded?
         if should_save(step):
             checkpoint.save()
     logger.write()
