@@ -328,18 +328,23 @@ class ImagActorCritic(nj.Module):
             metrics.update(jaxutils.tensorstats(normed_ret, f"{key}_return_normed"))
             metrics[f"{key}_return_rate"] = (jnp.abs(ret) >= 0.5).mean()
 
-        if len(self.critics) != 1:
-            raise NotImplementedError(
-                "Must have exactly one critic for TD error calculation."
-            )
+        # if len(self.critics) != 1:
+        #     raise NotImplementedError(
+        #         "Must have exactly one critic for TD error calculation."
+        #     )  ## TODO balloch: redundant with the below line
 
-        r = jnp.reshape(rew[0], (self.config.batch_size, self.config.batch_length))
-        v = jnp.reshape(base[0], (self.config.batch_size, self.config.batch_length))
-        disc = jnp.reshape(
-            traj["cont"][0], (self.config.batch_size, self.config.batch_length)
-        ) * (1 - 1 / self.config.horizon)
-        td_error = r[:, :-1] + disc[:, 1:] * v[:, 1:] - v[:, :-1]
-        metrics["td_error"] = td_error  # Store TD error for PER prioritization
+        if self.path != 'agent/expl_behavior/ac':
+            r = jnp.reshape(rew[0], (self.config.batch_size, self.config.batch_length))
+            v = jnp.reshape(base[0], (self.config.batch_size, self.config.batch_length))
+            disc = jnp.reshape(
+                traj["cont"][0], (self.config.batch_size, self.config.batch_length)
+            ) * (1 - 1 / self.config.horizon)
+            # if self.path == 'agent/expl_behavior/ac':
+            #     jax.debug.breakpoint()
+            td_error = r[:, :-1] + disc[:, 1:] * v[:, 1:] - v[:, :-1]
+            metrics["td_error"] = td_error  # Store TD error for PER prioritization
+            # print('td_shape: ', td_error.shape)
+            # print('reward shape: ', rew[0].shape)
 
         adv = jnp.stack(advs).sum(0)
         policy = self.actor(sg(traj))
