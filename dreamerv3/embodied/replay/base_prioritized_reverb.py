@@ -220,7 +220,7 @@ class BasePrioritizedReverb:
         self.visit_count[flat_env_steps] += 1
 
     @abstractmethod
-    def prioritize(self, key, env_steps, losses, td_error):
+    def prioritize(self, key, env_steps, losses, td_error, disag):
         pass
 
     def save(self, wait=False):

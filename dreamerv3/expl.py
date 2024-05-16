@@ -24,6 +24,7 @@ class Disag(nj.Module):
     def __call__(self, traj):
         inp = self.inputs(traj)
         preds = jnp.array([net(inp).mode() for net in self.nets])
+        # jax.debug.breakpoint()
         return preds.std(0).mean(-1)[1:]
 
     def train(self, data):
@@ -32,10 +33,12 @@ class Disag(nj.Module):
         return outputs
 
     def loss(self, data):
+        metrics = {}
+        losses = []
         inp = sg(self.inputs(data)[:, :-1])
         tar = sg(self.target(data)[:, 1:])
-        losses = []
         for net in self.nets:
             net._shape = tar.shape[2:]
             losses.append(-net(inp).log_prob(tar).mean())
+        metrics['disag_losses'] = losses # TODO some issue when returning metrics
         return jnp.array(losses).sum()

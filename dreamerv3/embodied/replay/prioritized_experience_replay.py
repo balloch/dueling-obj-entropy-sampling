@@ -11,7 +11,7 @@ class PrioritizedExperienceReplay(BasePrioritizedReverb):
     def _calculate_priority_score(td_error, hyper):
         return np.power(np.abs(td_error) + hyper["epsilon"], hyper["alpha"])
 
-    def prioritize(self, key, env_steps, losses, td_error):
+    def prioritize(self, key, env_steps, losses, td_error, disag):
         flat_steps = env_steps[:, 1:].flatten()
         flat_td = td_error.flatten()
         flat_priority = (

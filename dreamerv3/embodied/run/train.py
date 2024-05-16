@@ -93,10 +93,14 @@ def train(agent, env, replay, logger, args):
                 replay.update_visit_count(jax.device_get(batch[0]["env_step"]))
 
             if "key" in outs:
+                # jax.debug.breakpoint()
                 replay.prioritize(
-                    outs["key"], outs["env_step"], outs["model_loss"], outs["td_error"]
+                    key=outs["key"],
+                    env_steps=outs["env_step"],
+                    losses=outs["model_loss"],
+                    td_error=outs["td_error"],
+                    disag=outs["disag"]
                 )
-
             updates.increment()
         if should_sync(updates):
             agent.sync()

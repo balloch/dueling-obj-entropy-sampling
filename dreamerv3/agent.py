@@ -66,7 +66,7 @@ class Agent(nj.Module):
         latent, _ = self.wm.rssm.obs_step(
             prev_latent, prev_action, embed, obs["is_first"]
         )
-        self.expl_behavior.policy(latent, expl_state)
+        self.expl_behavior.policy(latent, expl_state)  # TODO balloch: what is this doing here?
         task_outs, task_state = self.task_behavior.policy(latent, task_state)
         expl_outs, expl_state = self.expl_behavior.policy(latent, expl_state)
         if mode == "eval":
@@ -98,13 +98,17 @@ class Agent(nj.Module):
             _, mets = self.expl_behavior.train(self.wm.imagine, start, context)
             metrics.update({"expl_" + key: value for key, value in mets.items()})
 
+        for key  in metrics.keys():
+            if "expl_disag_reward" in key:
+                pass
+                # jax.debug.breakpoint()
         if "keyA" in data.keys():
             outs = {
                 "key": data["key"],
                 "env_step": data["env_step"],
                 "model_loss": metrics["model_loss_raw"].copy(),
                 "td_error": metrics["td_error"].copy(),
-                # "disag": metrics["td_error"].copy(),
+                "disag": metrics["expl_disag_reward_mean"].copy(),
             }
 
         else:
@@ -343,8 +347,6 @@ class ImagActorCritic(nj.Module):
             #     jax.debug.breakpoint()
             td_error = r[:, :-1] + disc[:, 1:] * v[:, 1:] - v[:, :-1]
             metrics["td_error"] = td_error  # Store TD error for PER prioritization
-            # print('td_shape: ', td_error.shape)
-            # print('reward shape: ', rew[0].shape)
 
         adv = jnp.stack(advs).sum(0)
         policy = self.actor(sg(traj))
@@ -389,9 +391,13 @@ class VFunction(nj.Module):
         self.opt = jaxutils.Optimizer(name="critic_opt", **self.config.critic_opt)
 
     def train(self, traj, actor):
-        target = sg(self.score(traj)[1])
+        reward_data = self.score(traj)
+        target = sg(reward_data[1])
         mets, metrics = self.opt(self.net, self.loss, traj, target, has_aux=True)
         metrics.update(mets)
+        # For disagreement replay
+        # metrics["disag_reward_data"] = target
+        # jax.debug.breakpoint()
         self.updater()
         return metrics
 
@@ -427,4 +433,5 @@ class VFunction(nj.Module):
         for t in reversed(range(len(disc))):
             vals.append(interm[t] + disc[t] * self.config.return_lambda * vals[-1])
         ret = jnp.stack(list(reversed(vals))[:-1])
+        # jax.debug.breakpoint()
         return rew, ret, value[:-1]

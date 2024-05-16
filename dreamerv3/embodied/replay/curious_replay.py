@@ -14,7 +14,7 @@ class CuriousReplay(BasePrioritizedReverb):
             (model_loss + hyper["epsilon"]), hyper["alpha"]
         )
 
-    def prioritize(self, key, env_steps, losses, td_error):
+    def prioritize(self, key, env_steps, losses, td_error, disag):
         flat_steps = env_steps.flatten()
         flat_losses = losses.flatten()
         flat_count = self.visit_count[flat_steps]

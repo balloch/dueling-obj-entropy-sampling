@@ -1,3 +1,4 @@
+import jax
 import jax.numpy as jnp
 from tensorflow_probability.substrates import jax as tfp
 
@@ -93,9 +94,10 @@ class Explore(nj.Module):
         metrics = {}
         for key, rewfn in self.rewards.items():
             mets = rewfn.train(data)
-            metrics.update({f"{key}_k": v for k, v in mets.items()})
+            metrics.update({f"{key}_{k}": v for k, v in mets.items()})
         traj, mets = self.ac.train(imagine, start, data)
-        metrics.update(mets)
+        # jax.debug.breakpoint()
+        metrics.update(mets) #{f"explore_{key}": v for k, v in mets.items()})
         return traj, metrics
 
     def report(self, data):
