@@ -12,9 +12,11 @@ class RWRL(embodied.Env):
         quadruped=2,
     )
 
-    def __init__(self, env, repeat=1, render=True, size=(64, 64), camera=-1):
+    def __init__(self, env, repeat=1, render=True, size=(64, 64), camera=-1, perturb_spec=None):
         # TODO: This env variable is meant for headless GPU machines but may fail
         # on CPU-only machines.
+        if perturb_spec is None:
+            perturb_spec = {}
         if "MUJOCO_GL" not in os.environ:
             os.environ["MUJOCO_GL"] = "egl"
         if isinstance(env, str):
@@ -25,7 +27,7 @@ class RWRL(embodied.Env):
             env = rwrl.load(
                 domain_name=domain,
                 task_name=task,
-                combined_challenge='easy',
+                perturb_spec=perturb_spec,
                 log_output='/tmp/path/to/results.npz',
                 environment_kwargs=dict(log_safety_vars=True, flat_observation=True))
 

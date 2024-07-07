@@ -7,6 +7,8 @@ jaxlib
 numpy<1.24.4
 optax
 rich
+wandb
+moviepy #for wandb
 ruamel.yaml
 tensorflow-cpu
 tensorflow_probability
