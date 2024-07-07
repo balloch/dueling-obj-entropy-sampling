@@ -196,6 +196,7 @@ def make_env(config, **overrides):
         "dm": "embodied.envs.from_dmenv:FromDM",
         "crafter": "embodied.envs.crafter:Crafter",
         "dmc": "embodied.envs.dmc:DMC",
+        "rwrl": "embodied.envs.rwrl:RWRL",
         "atari": "embodied.envs.atari:Atari",
         "dmlab": "embodied.envs.dmlab:DMLab",
         "minecraft": "embodied.envs.minecraft:Minecraft",

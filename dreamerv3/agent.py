@@ -108,8 +108,9 @@ class Agent(nj.Module):
                 "env_step": data["env_step"],
                 "model_loss": metrics["model_loss_raw"].copy(),
                 "td_error": metrics["td_error"].copy(),
-                "disag": metrics["expl_disag_reward_mean"].copy(),
             }
+            if 'expl_disag_reward_mean' in metrics:
+                outs["disag"] = metrics["expl_disag_reward_mean"].copy()
 
         else:
             outs = {}
