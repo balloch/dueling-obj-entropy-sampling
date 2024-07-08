@@ -198,6 +198,7 @@ dmc_proprio:
 rwrl_vision:
 
   task: rwrl_walker_realworld_walk
+  run.steps: 1e6
   run.train_ratio: 512
   rssm.deter: 512
   .*\.cnn_depth: 32

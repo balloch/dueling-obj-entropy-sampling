@@ -12,7 +12,7 @@ class RWRL(embodied.Env):
         quadruped=2,
     )
 
-    def __init__(self, env, repeat=1, render=True, size=(64, 64), camera=-1, perturb_spec=None):
+    def __init__(self, env, repeat=1, render=True, size=(64, 64), camera=-1, perturb_spec=None, logdir=None):
         # TODO: This env variable is meant for headless GPU machines but may fail
         # on CPU-only machines.
         if perturb_spec is None:
@@ -21,6 +21,9 @@ class RWRL(embodied.Env):
             os.environ["MUJOCO_GL"] = "egl"
         if isinstance(env, str):
             domain, task = env.split("_", 1)
+            
+            if logdir is None:
+                logdir = '/srv/essa-lab/flash3/jballoch6/logs/does/' + domain + '_envlogs' + '/' + task
             if camera == -1:
                 camera = self.DEFAULT_CAMERAS.get(domain, 0)
             import realworldrl_suite.environments as rwrl
@@ -28,9 +31,9 @@ class RWRL(embodied.Env):
                 domain_name=domain,
                 task_name=task,
                 perturb_spec=perturb_spec,
-                log_output='/tmp/path/to/results.npz',
-                environment_kwargs=dict(log_safety_vars=True, flat_observation=True))
-
+                log_output=logdir,
+                environment_kwargs=dict(log_safety_vars=True, flat_observation=True)
+            )
         self._dmenv = env
         from . import from_dm
 

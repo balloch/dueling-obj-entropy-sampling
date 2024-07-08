@@ -241,10 +241,12 @@ class WandBOutput:
         self._pattern = re.compile(pattern)
         import wandb
 
+        run_name = config.replay + '_' + config.task '_' + logdir.name
+
         wandb.init(
             dir=logdir,
             project="does",
-            name=logdir.name,
+            name=run_name,
             # sync_tensorboard=True,,
             entity="semantic-latents",
             config=dict(config),
