@@ -1,4 +1,9 @@
-# Curious Replay for Model-based Adaptation
+# Dueling-Objective Entropy Sampling for Model-based Reinforcement Learning
+
+Based on Curious Replay, and thereby DreamerV3:
+----------------------------------------------
+
+## Curious Replay for Model-based Adaptation
 
 Implementation of [Curious Replay](https://arxiv.org/abs/2306.15934) with the [DreamerV3](https://danijar.com/dreamerv3) agent in [jax](https://github.com/google/jax). 
 
