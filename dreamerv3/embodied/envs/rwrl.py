@@ -23,7 +23,10 @@ class RWRL(embodied.Env):
             domain, task = env.split("_", 1)
             
             if logdir is None:
-                logdir = '/srv/essa-lab/flash3/jballoch6/logs/does/' + domain + '_envlogs' + '/' + task
+                logdir = '/srv/essa-lab/flash3/jballoch6/logs/does/' + 'rwrl_envlogs' + '/' + domain +'/' 
+                if not os.path.exists(logdir):
+                    # Create the directory
+                    os.makedirs(logdir)
             if camera == -1:
                 camera = self.DEFAULT_CAMERAS.get(domain, 0)
             import realworldrl_suite.environments as rwrl
@@ -31,7 +34,7 @@ class RWRL(embodied.Env):
                 domain_name=domain,
                 task_name=task,
                 perturb_spec=perturb_spec,
-                log_output=logdir,
+                log_output=logdir + task,
                 environment_kwargs=dict(log_safety_vars=True, flat_observation=True)
             )
         self._dmenv = env

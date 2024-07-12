@@ -241,7 +241,7 @@ class WandBOutput:
         self._pattern = re.compile(pattern)
         import wandb
 
-        run_name = config.replay + '_' + config.task '_' + logdir.name
+        run_name = config.replay + '_' + config.task + '_' + logdir.name
 
         wandb.init(
             dir=logdir,
