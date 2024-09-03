@@ -1,4 +1,5 @@
 .pytest_cache
+slurm/tmp/*.sh
 dist
 __pycache__/
 *.py[cod]

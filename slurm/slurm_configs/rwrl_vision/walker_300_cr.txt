@@ -1,0 +1,2 @@
+--envs.amount 1 --task rwrl_walker_realworld_walk --run.steps 5e5  --env.rwrl.perturb_spec.start 0.3 --env.rwrl.perturb_spec.min 0.3  --env.rwrl.perturb_spec.max 0.3 --replay curious-replay
+
