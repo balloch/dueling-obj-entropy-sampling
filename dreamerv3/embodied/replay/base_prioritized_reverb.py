@@ -40,6 +40,7 @@ class BasePrioritizedReverb:
         self.step_to_keyA = np.zeros((max_steps,), dtype=np.uint32)
         self.step_to_keyB = np.zeros((max_steps,), dtype=np.uint32)
         self.visit_count = np.zeros((max_steps,), dtype=np.uint32)
+        self.td_errors = np.zeros((max_steps,), dtype=np.float32)
 
         self.env_step_count = defaultdict(int)
         self.queue = deque(maxlen=2 * flush)
@@ -184,6 +185,11 @@ class BasePrioritizedReverb:
         for sample in dataset:
             seq = sample.data
             seq = {k: embodied.convert(v) for k, v in seq.items()}
+
+            # Get env steps and corresponding TD errors for this sequence
+            env_steps = seq['env_step']
+            seq["td_errors"] = self.td_errors[env_steps]
+
             seq["keyA"], seq["keyB"] = self._split_key(sample.info.key)
             seq["key"] = (seq["keyA"], seq["keyB"])
             seq["probability"] = sample.info.probability
@@ -218,6 +224,20 @@ class BasePrioritizedReverb:
     def update_visit_count(self, env_steps):
         flat_env_steps = env_steps.flatten()
         self.visit_count[flat_env_steps] += 1
+
+    def update_td_errors(self, env_steps, td_errors):
+        """Update TD errors for the given environment steps.
+
+        Args:
+            env_steps: Array of environment step indices
+            td_errors: Array of corresponding TD errors
+        """
+        # Ensure inputs are numpy arrays and flatten
+        env_steps = np.asarray(env_steps[:, 1:]).flatten()
+        td_errors = np.asarray(td_errors).flatten()
+
+        # Update TD errors at the specified indices
+        self.td_errors[env_steps] = td_errors
 
     @abstractmethod
     def prioritize(self, key, env_steps, losses, td_error, disag):

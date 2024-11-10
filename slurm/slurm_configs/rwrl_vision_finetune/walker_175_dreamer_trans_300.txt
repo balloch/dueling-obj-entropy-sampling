@@ -1,0 +1,1 @@
+--envs.amount 1 --task rwrl_walker_realworld_walk --run.steps 1e5  --run.checkpoint_keys=agent --run.from_checkpoint  /srv/essa-lab/flash3/jballoch6/logs/does/rwrl_vision/walker_175_dreamer_base/checkpoint.ckpt --env.rwrl.perturb_spec.start 0.3 --env.rwrl.perturb_spec.min 0.3  --env.rwrl.perturb_spec.max 0.3

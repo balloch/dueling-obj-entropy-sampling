@@ -9,14 +9,14 @@ show_help() {
     echo    "## Usage: $0 [options]"
     echo -e "          $0 <exp_output_dir> <parent_configs> \n"
     echo
+    echo "Uses all configs in the specified directory by default"
     echo "Options:"
     echo "  --help          Show this help message and exit"
     echo "  --hard_configs  Use the configs hardcoded in this file"
     echo "  --configs       Use a list of configs after this flag"
 }
 
-# Check for the --help flag
-#if [[ -z "$1" || "$1" == "-h" || "$1" == "--help" || "$1" == "--helper" ]]; then
+# help parsing --help flag
 if [[ "$1" == "-h" || "$1" == "--help" || "$1" == "--helper" ]]; then
     show_help
     exit 0
@@ -37,18 +37,17 @@ ENV="rwrl_vision"
 
 SCRIPT_DIR="$ROOT/code/${PROJECT}/slurm"
 
-CONFIG_DIR="$ROOT/code/${PROJECT}/slurm/slurm_configs/${ENV}"
+CONFIG_DIR="$ROOT/code/${PROJECT}/slurm/slurm_configs/${ENV}_scratch"
 
 RUNNER_WRAPPER_SCRIPT="${SCRIPT_DIR}/template_wrapper_${PROJECT}_${ENV}.sh"
 
-if [ $# -eq 2 ] && [ "$1" = "--hard_configs" ]; then
+if [ "$1" = "--hard_configs" ]; then # [ $# -eq 2 ] &&
     # Use configs hardcoded in this file
     echo "Using hardcoded configs"
-    CONFIGS=("walker_175_dreamer.txt" "walker_175_cr.txt" "walker_300_dreamer.txt" "walker_300_cr.txt")
-    #CONFIGS=("walker_175_dreamer.yml" "walker_175_cr.yml" "walker_175_does.yml" "walker_300_dreamer.yml" "walker_300_cr.yml" "walker_300_does.yml")
-    #CONFIGS=("${hardcoded_files[@]/#/$directory/}")
-# Check if specific files are provided as arguments
-elif [ $# -gt 2 ] && [ "$1" = "--configs" ]; then
+    CONFIGS=("walker_175_dos.txt" "walker_300_dos.txt")
+    # CONFIGS=("walker_175_dreamer.txt" "walker_175_cr.txt" "walker_300_dreamer.txt" "walker_300_cr.txt")
+elif [ $# -gt 2 ] && [ "$1" = "--configs" ]; then # TODO this mode isn't working
+    # Check if specific files are provided as arguments
     # Shift to remove the directory argument
     echo "specified configs:"
     shift
@@ -57,7 +56,7 @@ elif [ $# -gt 2 ] && [ "$1" = "--configs" ]; then
 else
     # If no specific files are provided, use all of the non-".args" files in the directory
     echo "All configs in directory"
-    # Loop through each file to filter out 
+    # Loop through each file to filter out
     CONFIGS=()
     for file in "${CONFIG_DIR}"/*; do
         # Check if it is a file and does not end in ".args"
@@ -85,7 +84,7 @@ CPT=0
 
 
 # -- grab un-usable nodes
-mapfile -t all_nodes < <( squeue -u abeedu3 -o "%N" )
+mapfile -t all_nodes < <( squeue -u jballoch6 -o "%N" )
 
 all_nodes=("${all_nodes[@]:1}")
 
@@ -146,4 +145,3 @@ for cfg in "${CONFIGS[@]}"; do
     ((CPT++))
 
 done
-

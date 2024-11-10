@@ -42,6 +42,7 @@ defaults:
     log_keys_mean: '(log_entropy)'
     log_keys_max: '^$'
     from_checkpoint: ''
+    checkpoint_keys: [agent,step,replay,_timestamp]
     sync_every: 10
     # actor_addr: 'tcp://127.0.0.1:5551'
     actor_addr: 'ipc:///tmp/5551'
@@ -66,6 +67,11 @@ defaults:
   batch_size: 14
   batch_length: 60
   data_loaders: 8
+
+  # Actor Replay Filtering
+  la3p: False
+  ac_sample_overlap: 0.5
+  td_error_threshold: 0.0
 
   # World Model
   grad_heads: [decoder, reward, cont]

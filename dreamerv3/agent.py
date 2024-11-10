@@ -308,13 +308,82 @@ class ImagActorCritic(nj.Module):
         def loss(start):
             policy = lambda s: self.actor(sg(s)).sample(seed=nj.rng())
             traj = imagine(policy, start, self.config.imag_horizon)
-            loss, metrics = self.loss(traj)
-            return loss, (traj, metrics)
 
+            if self.config.la3p and 'td_errors' in start:
+                prior_td_errors = jnp.abs(start["td_errors"])
+                batch_size = prior_td_errors.shape[0]
+
+                # Sort indices by TD error
+                sorted_indices = jnp.argsort(prior_td_errors)
+
+                # Calculate mask based on actor and critic getting 1/3*(1-la3p_overap)+1/3*la3p_overap
+                masked_fraction = 1/(2 - self.config.ac_sample_overlap)
+                masked_total = int(batch_size * masked_fraction)
+
+                # Get indices for actor (lowest masked_fraction) and critic (highest masked_fraction)
+                actor_indices = sorted_indices[:masked_total]
+                # critic_indices = sorted_indices[batch_size - masked_total:]
+
+                # Create actor trajectories
+                actor_traj = jax.tree_map(lambda x: x[:,actor_indices,...], traj)
+                # critic_traj = jax.tree_map(lambda x: x[critic_indices], traj)
+
+            else:
+                actor_traj = traj
+            # Calculate actor loss with or without low TD error trajectories
+            loss, metrics = self.loss(actor_traj)
+
+            return loss, (traj, metrics)
         mets, (traj, metrics) = self.opt(self.actor, loss, start, has_aux=True)
         metrics.update(mets)
+
+        # Moving TD error calculation up here to facilitate la3p
         for key, critic in self.critics.items():
-            mets = critic.train(traj, self.actor)
+            rew, ret, base = critic.score(traj, self.actor)
+        if self.path != 'agent/expl_behavior/ac':
+            r = jnp.reshape(rew[0], (self.config.batch_size, self.config.batch_length))
+            v = jnp.reshape(base[0], (self.config.batch_size, self.config.batch_length))
+            disc = jnp.reshape(
+                traj["cont"][0], (self.config.batch_size, self.config.batch_length)
+            ) * (1 - 1 / self.config.horizon)
+            # if self.path == 'agent/expl_behavior/ac':
+            #     jax.debug.breakpoint()
+            td_error = r[:, :-1] + disc[:, 1:] * v[:, 1:] - v[:, :-1]
+            metrics["td_error"] = td_error  # Store TD error for PER prioritization
+
+        # for critic
+        # jax.debug.breakpoint()
+        if self.config.la3p and 'td_errors' in start:
+            prior_td_errors = jnp.abs(start["td_errors"])
+            batch_size = prior_td_errors.shape[0]
+
+            # Sort indices by TD error
+            sorted_indices = jnp.argsort(prior_td_errors)
+
+            # Calculate mask based on actor and critic getting 1/3*(1-la3p_overap)+1/3*la3p_overap
+            masked_fraction = 1/(2 - self.config.ac_sample_overlap)
+            masked_total = int(batch_size * masked_fraction)
+
+            # Get indices for critic (highest masked_fraction)
+            actor_indices = sorted_indices[:masked_total]
+            critic_indices = sorted_indices[batch_size - masked_total:]
+
+            # Create critic trajectories
+            critic_traj = jax.tree_map(lambda x: x[:,critic_indices,...], traj)
+
+            # Add metrics about the split
+            metrics.update({
+                "actor_selection_td_max": prior_td_errors[actor_indices].max(),
+                "actor_selection_td_mean": prior_td_errors[actor_indices].mean(),
+                "critic_selection_td_max": prior_td_errors[critic_indices].max(),
+                "critic_selection_td_mean": prior_td_errors[critic_indices].mean(),
+            })
+        else:
+            critic_traj = traj
+        # Calculate actor loss with or without low TD error trajectories
+
+        for key, critic in self.critics.items():
+            mets = critic.train(critic_traj, self.actor)
             metrics.update({f"{key}_critic_{k}": v for k, v in mets.items()})
         return traj, metrics
 
@@ -338,16 +407,6 @@ class ImagActorCritic(nj.Module):
         #         "Must have exactly one critic for TD error calculation."
         #     )  ## TODO balloch: redundant with the below line
 
-        if self.path != 'agent/expl_behavior/ac':
-            r = jnp.reshape(rew[0], (self.config.batch_size, self.config.batch_length))
-            v = jnp.reshape(base[0], (self.config.batch_size, self.config.batch_length))
-            disc = jnp.reshape(
-                traj["cont"][0], (self.config.batch_size, self.config.batch_length)
-            ) * (1 - 1 / self.config.horizon)
-            # if self.path == 'agent/expl_behavior/ac':
-            #     jax.debug.breakpoint()
-            td_error = r[:, :-1] + disc[:, 1:] * v[:, 1:] - v[:, :-1]
-            metrics["td_error"] = td_error  # Store TD error for PER prioritization
 
         adv = jnp.stack(advs).sum(0)
         policy = self.actor(sg(traj))

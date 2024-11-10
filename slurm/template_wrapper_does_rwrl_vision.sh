@@ -18,7 +18,7 @@ echo "CONFIG FILE: $CONFIG_FILE"
 file_extension="${CONFIG_FILE##*.}"
 
 # Set TRUE for debugging
-export PYTHONUNBUFFERED=FALSE 
+export PYTHONUNBUFFERED=FALSE
 
 conda activate does
 
@@ -35,7 +35,7 @@ for SEED in $(seq 0 $SEEDS); do
         # Split the string into an array
         read -r -a CONFIG_LIST <<< "$my_string"
 
-        #CONFIG_LIST=$(cat "$CONFIG_FILE") 
+        #CONFIG_LIST=$(cat "$CONFIG_FILE")
         python dreamerv3/train.py "--seed" "$SEED" "--logdir" "${OUTPUT_DIR}/run$SEED" "--configs" "rwrl_vision" "${CONFIG_LIST[@]}"
     else
         python dreamerv3/train.py "--seed" "$SEED" "--logdir" "${OUTPUT_DIR}/run$SEED" "--config" "$CONFIG_FILE"

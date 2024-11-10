@@ -240,8 +240,11 @@ class WandBOutput:
     def __init__(self, logdir, config, pattern=r".*"):
         self._pattern = re.compile(pattern)
         import wandb
-
-        run_name = config.replay + '_' + config.task + '_' + logdir.name
+        if config.run.from_checkpoint:
+            chkpt = '_from_chpt'
+        else:
+            chkpt = ''
+        run_name = config.replay + '_' + config.task + chkpt + '_' + logdir.name
 
         wandb.init(
             dir=logdir,
